@@ -36,21 +36,26 @@ int main() {
 			continue;
 		}
 
+		cout << "HEX DUMP FOR FILE: " + fileName << endl << endl;
+
 		int currentLine = 0;
 		while (file.good() && !file.eof()) {
 			unsigned char memory[16];
 			file.read((char*) memory, 16);
 
-			cout << hex << setfill('0') << setw(8) << uppercase << currentLine << " ";
+			cout << hex << setfill('0') << setw(8) << uppercase << currentLine << ":  ";
 			for (int i = 0; i < 16; i++) {
-				memory[i];
 				cout << hex << setfill('0') << setw(2) << uppercase << (int)memory[i];
-				cout << "  ";
+				cout << " ";
 			}
+
+			// for (int i = 0; i < 16; i++) {
+			//     cout << memory[i];
+			// }
 			cout << endl;
 
 			file.seekg(16, ios::cur);
-			currentLine + 16;
+			currentLine += 16;
 		}
 
 		file.close();

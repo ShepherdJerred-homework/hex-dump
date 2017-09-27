@@ -17,7 +17,52 @@ using std::string;
 using std::ifstream;
 using std::ios;
 
-int main() {
+void printLineNumber(int currentLine) {
+	cout << hex << setfill('0') << setw(8) << uppercase << currentLine << ":  ";
+}
+
+void printDumpHeader(string fileName) {
+	cout << "HEX DUMP FOR FILE: " + fileName << endl << endl;
+}
+
+
+void printFileContents(ifstream &file) {
+	int currentLine = 0;
+
+	while (file.good()) {
+		unsigned char buffer[16];
+		std::fill(buffer, buffer + 16, 128);
+		file.read((char*)buffer, 16);
+
+		printLineNumber(currentLine);
+		for (int i = 0; i < 16; i++) {
+			if (buffer[i] == 128) {
+				cout << "  ";
+			} else {
+				cout << hex << setfill('0') << setw(2) << uppercase << (int)buffer[i];
+			}
+			cout << " ";
+		}
+		cout << " ";
+		for (int i = 0; i < 16; i++) {
+			unsigned char value = buffer[i];
+			if (buffer[i] == 128) {
+				break;
+			}
+			if (value >= 32 && value < 126) {
+				cout << buffer[i];
+			} else {
+				cout << ".";
+			}
+		    
+		}
+		cout << endl;
+
+		currentLine += 16;
+	}
+}
+
+void run() {
 	string fileName;
 
 	while (true) {
@@ -36,32 +81,16 @@ int main() {
 			continue;
 		}
 
-		cout << "HEX DUMP FOR FILE: " + fileName << endl << endl;
-
-		int currentLine = 0;
-		while (file.good() && !file.eof()) {
-			unsigned char memory[16];
-			file.read((char*) memory, 16);
-
-			cout << hex << setfill('0') << setw(8) << uppercase << currentLine << ":  ";
-			for (int i = 0; i < 16; i++) {
-				cout << hex << setfill('0') << setw(2) << uppercase << (int)memory[i];
-				cout << " ";
-			}
-
-			// for (int i = 0; i < 16; i++) {
-			//     cout << memory[i];
-			// }
-			cout << endl;
-
-			file.seekg(16, ios::cur);
-			currentLine += 16;
-		}
+		printDumpHeader(fileName);
+		printFileContents(file);
 
 		file.close();
 		cout << endl << endl;
 	}
+}
 
+int main() {
+	run();
 	system("pause");
     return 0;
 }

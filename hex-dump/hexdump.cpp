@@ -1,3 +1,10 @@
+/*
+Hex Dump
+Jerred Shepherd
+
+This program will take any file, and output its contents in hexidecimal, along with an ASCII preview and line numbers
+*/
+
 #include "stdafx.h"
 #include <iostream>
 #include <string>
@@ -12,51 +19,59 @@ using std::cout;
 using std::cin;
 using std::endl;
 
+using std::fill;
+
 using std::string;
 
+using std::ofstream;
 using std::ifstream;
 using std::ios;
 
-void printLineNumber(int currentLine) {
-	cout << hex << setfill('0') << setw(8) << uppercase << currentLine << ":  ";
-}
-
-void printDumpHeader(string fileName) {
-	cout << "HEX DUMP FOR FILE: " + fileName << endl << endl;
-}
-
-
-void printFileContents(ifstream &file) {
+void printFileContents(ifstream &inputFile, string fileName) {
 	int currentLine = 0;
 
-	while (file.good()) {
-		unsigned char buffer[16];
-		std::fill(buffer, buffer + 16, 128);
-		file.read((char*)buffer, 16);
+	// https://stackoverflow.com/questions/6417817/easy-way-to-remove-extension-from-a-filename
+	size_t lastindex = fileName.find_last_of(".");
+	string fileNameWithoutExtension;
+	if (lastindex == string::npos) {
+		fileNameWithoutExtension = fileName;
+	} else {
+		fileNameWithoutExtension = fileName.substr(0, lastindex);
+	}
 
-		printLineNumber(currentLine);
+	ofstream outputFile;
+	outputFile.open(fileNameWithoutExtension + ".dmp", ios::out);
+
+	outputFile << "HEX DUMP FOR FILE: " + fileName << endl << endl;
+
+	while (inputFile.good()) {
+		unsigned char buffer[16];
+		fill(buffer, buffer + 16, 128);
+		inputFile.read((char*)buffer, 16);
+
+		outputFile << hex << setfill('0') << setw(8) << uppercase << currentLine << ":  ";
 		for (int i = 0; i < 16; i++) {
 			if (buffer[i] == 128) {
-				cout << "  ";
+				outputFile << "  ";
 			} else {
-				cout << hex << setfill('0') << setw(2) << uppercase << (int)buffer[i];
+				outputFile << hex << setfill('0') << setw(2) << uppercase << (int)buffer[i];
 			}
-			cout << " ";
+			outputFile << " ";
 		}
-		cout << " ";
+		outputFile << " ";
 		for (int i = 0; i < 16; i++) {
 			unsigned char value = buffer[i];
 			if (buffer[i] == 128) {
 				break;
 			}
 			if (value >= 32 && value < 126) {
-				cout << buffer[i];
+				outputFile << buffer[i];
 			} else {
-				cout << ".";
+				outputFile << ".";
 			}
 		    
 		}
-		cout << endl;
+		outputFile << endl;
 
 		currentLine += 16;
 	}
@@ -81,8 +96,7 @@ void run() {
 			continue;
 		}
 
-		printDumpHeader(fileName);
-		printFileContents(file);
+		printFileContents(file, fileName);
 
 		file.close();
 		cout << endl << endl;

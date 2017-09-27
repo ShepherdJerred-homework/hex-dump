@@ -80,27 +80,21 @@ void printFileContents(ifstream &inputFile, string fileName) {
 void run() {
 	string fileName;
 
-	while (true) {
-		cout << "File name or e to exit: ";
-		cin >> fileName;
+	cout << "File name: ";
+	cin >> fileName;
 
-		if (fileName == "e") {
-			break;
-		}
+	ifstream file;
+	file.open(fileName, ios::in | ios::binary);
 
-		ifstream file;
-		file.open(fileName, ios::in | ios::binary);
-
-		if (!file.is_open()) {
-			cout << "Error opening file" << endl;
-			continue;
-		}
-
-		printFileContents(file, fileName);
-
-		file.close();
-		cout << endl << endl;
+	if (!file.is_open()) {
+		cout << "Error opening file" << endl;
+		return;
 	}
+
+	printFileContents(file, fileName);
+
+	file.close();
+	cout << endl << endl;
 }
 
 int main() {
